@@ -8,7 +8,8 @@ export default new Vuex.Store({
   state: {
     // = data
     products: [],
-    cart: []
+    cart: [],
+    checkoutStatus: null
   },
   getters: {
     // = computed properties
@@ -64,6 +65,18 @@ export default new Vuex.Store({
         }
         context.commit("decrementProductInventory", product);
       }
+    },
+    checkout({ state, commit }) {
+      shop.buyProducts(
+        state.cart,
+        () => {
+          commit("emptyCart");
+          commit("setCheckoutStatus", "success");
+        },
+        () => {
+          commit("setCheckoutStatus", "fail");
+        }
+      );
     }
   },
   mutations: {
@@ -85,6 +98,12 @@ export default new Vuex.Store({
       //     productToFind => productToFind.id === product.id
       //   );
       //   existingProduct.inventory--;
+    },
+    emptyCart(state) {
+      state.cart = [];
+    },
+    setCheckoutStatus(state, status) {
+      state.checkoutStatus = status;
     }
   }
 });
