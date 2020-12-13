@@ -1,6 +1,7 @@
 import shop from "@/api/shop";
 
 export default {
+  namespaced: true,
   state: {
     items: [],
     checkoutStatus: null
@@ -28,15 +29,19 @@ export default {
   },
   actions: {
     //Leaving rootState in my destructure as a reminder that is how to access it for actions.
-    addProductToCart({ commit, getters, state, rootState }, product) {
-      if (getters.productIsInStock(product)) {
+    addProductToCart(
+      { commit, getters, state, rootState, rootGetters },
+      product
+    ) {
+      if (rootGetters["products/productIsInStock"](product)) {
         const cartItem = state.items.find(item => item.id === product.id);
         if (!cartItem) {
           commit("pushProductToCart", product.id);
         } else {
           commit("incrementItemQuantity", cartItem);
         }
-        commit("decrementProductInventory", product);
+        // root: true tells vuex to reference this action from the root scope.
+        commit("products/decrementProductInventory", product, { root: true });
       }
     },
     checkout({ state, commit, rootState }) {
